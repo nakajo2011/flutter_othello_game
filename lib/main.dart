@@ -1,9 +1,16 @@
+import 'package:bloc_provider/bloc_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/bloc/othello_game_bloc.dart';
-import 'package:flutter_app/widgets/board.dart';
+import 'package:flutter_othello_game/bloc/othello_game_bloc.dart';
+import 'package:flutter_othello_game/widgets/board.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    // Create and provide the bloc.
+    BlocProvider<OthelloGameBloc>(
+      creator: (_context, _bag) => OthelloGameBloc(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,17 +27,17 @@ class MyApp extends StatelessWidget {
           body: Column(children: <Widget>[
             Container(
               color: Color(0xFF206020),
-              child: Board(bloc: bloc),),
+              child: Board(),),
             Center(
               child: Text('Othello Board'),
             ),
-            RestButton()
+            RestButton(BlocProvider.of<OthelloGameBloc>(context))
           ])
       ),
     );
   }
 
-  Widget RestButton() {
+  Widget RestButton(OthelloGameBloc bloc) {
     return RaisedButton(
       child: Text("Reset"),
       color: Colors.blue,

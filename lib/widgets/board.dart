@@ -1,11 +1,10 @@
+import 'package:bloc_provider/bloc_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/bloc/othello_game_bloc.dart';
+import 'package:flutter_othello_game/bloc/othello_game_bloc.dart';
 
 class Board extends StatelessWidget {
-  final OthelloGameBloc bloc;
   const Board({
-    Key key,
-    @required this.bloc,
+    Key key
   }): super(key: key);
 
   @override
@@ -15,14 +14,14 @@ class Board extends StatelessWidget {
       color: Colors.black,
       width: 320,
       height: 320,
-      child: columns(bloc),
+      child: columns(),
     );
   }
 
-  Widget columns(OthelloGameBloc bloc) {
+  Widget columns() {
     List<Widget> cols = new List<Widget>(8);
     for (int i = 0; i < 8; i++) {
-      cols[i] = BoardColumn(columnId: i, bloc: bloc);
+      cols[i] = BoardColumn(columnId: i);
     }
     return Column(children: cols);
   }
@@ -31,18 +30,16 @@ class Board extends StatelessWidget {
 class BoardColumn extends StatelessWidget {
   const BoardColumn({
     Key key,
-    this.columnId,
-    @required this.bloc,
+    @required this.columnId,
   }): super(key: key);
 
   final int columnId;
-  final OthelloGameBloc bloc;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-          child: BoardRow(columnId: columnId, bloc: bloc)
+          child: BoardRow(columnId: columnId)
       ),
     );
   }
@@ -50,52 +47,50 @@ class BoardColumn extends StatelessWidget {
 
 class BoardRow extends StatelessWidget {
   final int columnId;
-  final OthelloGameBloc bloc;
 
   const BoardRow({
     Key key,
-    this.columnId,
-    @required this.bloc,
+    @required this.columnId,
   }): super(key: key);
 
   @override
   Widget build(BuildContext context) {
     List<Widget> rows = new List<Widget>(8);
     for (int i = 0; i < 8; i++) {
-      rows[i] = BoardCell(columnId: columnId, rowId: i, bloc: bloc);
+      rows[i] = BoardCell(columnId: columnId, rowId: i);
     }
     return Row(textDirection: TextDirection.ltr, children: rows);
   }
 }
 
 class BoardCell extends StatelessWidget {
-  final OthelloGameBloc bloc;
   final int columnId;
   final int rowId;
 
   const BoardCell({
     Key key,
-    @required this.bloc,
-    this.columnId,
-    this.rowId,
+    @required this.columnId,
+    @required this.rowId,
   }): super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Access the bloc with O(1) computation complexity.
+    final bloc = BlocProvider.of<OthelloGameBloc>(context);
     return Expanded(
       child: StreamBuilder(
         // 指定したstreamにデータが流れてくると再描画される
-        stream: this.bloc.board,
+        stream: bloc.board,
         builder: (contex, snap) => Container(
             margin: EdgeInsets.all(1.0),
             color: Colors.green,
-            child: getStone(),
+            child: getStone(bloc),
           ),
       ),
     );
   }
 
-  getStone() {
+  Widget getStone(OthelloGameBloc bloc) {
     int stoneIndex = 0;
     List<int> boardState = bloc.board.value;
     Sink<int> putStone = bloc.putStone;

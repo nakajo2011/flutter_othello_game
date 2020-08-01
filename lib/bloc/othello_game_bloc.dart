@@ -1,6 +1,8 @@
+import 'package:bloc_provider/bloc_provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:bloc_provider/bloc_provider.dart';
 
-class OthelloGameBloc {
+class OthelloGameBloc implements Bloc {
   static const int BLACK_STONE = 1;
   static const int WHITE_STONE = 2;
   static const List<int> START_BOARD_STATE = [
@@ -19,6 +21,13 @@ class OthelloGameBloc {
   final _putStoneSubject = PublishSubject<int>();
   final _resetSubject = PublishSubject<void>();
 
+  @override
+  void dispose() async {
+    await _boardSubject.close();
+    await _putStoneSubject.close();
+    await _resetSubject.close();
+  }
+
   ValueStream<List<int>> get board => _boardSubject;
   Sink<int> get putStone => _putStoneSubject.sink;
   Sink<void> get resetGame => _resetSubject.sink;
@@ -33,7 +42,6 @@ class OthelloGameBloc {
 
   void _putStone(int index) {
     if(index == null) return;
-    print("turn: "+isBlackTurn.toString());
     boardState[index] = getStone();
     toggleTurn();
     broadcast();
@@ -58,9 +66,5 @@ class OthelloGameBloc {
   // broadcast state to subscriber
   void broadcast() {
     _boardSubject.add(boardState);
-  }
-
-  void dispose() async {
-    await _boardSubject.close();
   }
 }
