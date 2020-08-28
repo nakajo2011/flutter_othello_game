@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_othello_game/model/othello_game.dart';
 import 'package:flutter_othello_game/widgets/board.dart';
+import 'package:flutter_othello_game/models.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  setup();
   runApp(
     // Create and provide the bloc.
     MultiProvider(
@@ -11,6 +13,11 @@ void main() {
       child: MyApp(),
     ),
   );
+}
+
+void setup() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DrawingOthelloDbModel().initializeDB();
 }
 
 class MyApp extends StatelessWidget {
