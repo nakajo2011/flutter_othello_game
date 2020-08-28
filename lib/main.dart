@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_othello_game/model/othello_game.dart';
+import 'package:flutter_othello_game/state/othello_game_state.dart';
 import 'package:flutter_othello_game/widgets/board.dart';
+import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:provider/provider.dart';
 
 void main() {
   runApp(
     // Create and provide the bloc.
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => OthelloGame())],
+      providers: [
+        StateNotifierProvider<OthelloGame, OthelloGameState>(
+          create: (_) => OthelloGame(),
+        )
+      ],
       child: MyApp(),
     ),
   );

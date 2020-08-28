@@ -1,7 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_othello_game/model/othello_board.dart';
+import 'package:flutter_othello_game/state/othello_game_state.dart';
+import 'package:state_notifier/state_notifier.dart';
 
-class OthelloGame with ChangeNotifier {
+class OthelloGame extends StateNotifier<OthelloGameState> with LocatorMixin {
+  OthelloGame() : super(const OthelloGameState());
+
   static const int BLACK_STONE = 1;
   static const int WHITE_STONE = 2;
 
@@ -10,13 +13,11 @@ class OthelloGame with ChangeNotifier {
   BigInt blackStones = BigInt.from(0x0000000810000000).toUnsigned(64);
   BigInt whiteStones = BigInt.from(0x0000001008000000).toUnsigned(64);
 
-  @override
-  void dispose() async {
-  }
-
   bool isBlackTurn = true;
 
-  OthelloGame() {
+  @override
+  void initState() {
+    super.initState();
     resetGame();
   }
 
@@ -32,7 +33,7 @@ class OthelloGame with ChangeNotifier {
 
     putAndChangeStones(board, point);
     updateBoard();
-    notifyListeners();
+    state = state.copyWith(boardState: _boardState);
   }
 
   String indexToPoint(index) {
@@ -79,6 +80,6 @@ class OthelloGame with ChangeNotifier {
     updateBoard();
 
     isBlackTurn = true;
-    notifyListeners();
+    state = state.copyWith(isBlackTurn: isBlackTurn, boardState: _boardState);
   }
 }
