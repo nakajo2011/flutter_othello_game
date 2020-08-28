@@ -1,6 +1,6 @@
-import 'package:bloc_provider/bloc_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_othello_game/bloc/othello_game_bloc.dart';
+import 'package:flutter_othello_game/model/othello_game.dart';
+import 'package:provider/provider.dart';
 
 class Board extends StatelessWidget {
   const Board({
@@ -76,36 +76,26 @@ class BoardCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Access the bloc with O(1) computation complexity.
-    final bloc = BlocProvider.of<OthelloGameBloc>(context);
     return Expanded(
-      child: StreamBuilder(
-        // 指定したstreamにデータが流れてくると再描画される
-        stream: bloc.board,
-        builder: (contex, snap) => Container(
-            margin: EdgeInsets.all(1.0),
-            color: Colors.green,
-            child: getStone(bloc),
-          ),
+      child: Container(
+        margin: EdgeInsets.all(1.0),
+        color: Colors.green,
+        child: getStone(context),
       ),
     );
   }
 
-  Widget getStone(OthelloGameBloc bloc) {
-    int stoneIndex = 0;
-    List<int> boardState = bloc.board.value;
-    Sink<int> putStone = bloc.putStone;
-    if(boardState != null) {
-      stoneIndex = boardState[getIndex()];
-    }
-    if(stoneIndex == OthelloGameBloc.BLACK_STONE) {
+  Widget getStone(BuildContext context) {
+    final int stoneIndex = context.select((OthelloGame game) => game.getState(getIndex()));
+    if(stoneIndex == OthelloGame.BLACK_STONE) {
       return BlackStone();
-    } else if(stoneIndex == OthelloGameBloc.WHITE_STONE) {
+    } else if(stoneIndex == OthelloGame.WHITE_STONE) {
       return WhiteStone();
     } else {
       return InkWell(
           child:Container(),
           onTap: () {
-            putStone.add(getIndex());
+            context.read<OthelloGame>().putStone(getIndex());
             print("Cell("+columnId.toString()+", "+rowId.toString()+") taped.");
           }
       );
