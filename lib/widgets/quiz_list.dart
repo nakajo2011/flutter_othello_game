@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_othello_game/widgets/board.dart';
+import 'package:flutter_othello_game/widgets/board/view_board.dart';
 
 class QuizList extends StatelessWidget {
   QuizList({Key key}): super(key: key);
@@ -30,7 +30,7 @@ class QuizList extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.all(4.0),
-            child: Board(width:80, height:80, margin: 3, lineColor: Colors.lightGreen,)
+            child: ViewBoard(width:80, height:80, margin: 3, lineColor: Colors.lightGreen,)
           ),
         ]
       ),

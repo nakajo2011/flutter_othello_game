@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_othello_game/model/othello_game.dart';
-import 'package:flutter_othello_game/widgets/board.dart';
+import 'package:flutter_othello_game/widgets/board/playable_board.dart';
 import 'package:provider/provider.dart';
 
 class CreateQuizPage extends StatelessWidget {
@@ -12,7 +12,7 @@ class CreateQuizPage extends StatelessWidget {
       ),
       body: Column(children: <Widget>[
       Container(
-        child: Board(),
+        child: PlayableBoard(),
       ),
       Center(
         child: Text('Othello Board'),
