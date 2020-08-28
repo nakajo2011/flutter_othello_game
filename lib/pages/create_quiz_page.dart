@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_othello_game/constants.dart';
 import 'package:flutter_othello_game/model/othello_game.dart';
 import 'package:flutter_othello_game/widgets/board.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +12,6 @@ class CreateQuizPage extends StatelessWidget {
       ),
       body: Column(children: <Widget>[
       Container(
-        color: Color(0xFF206020),
         child: Board(),
       ),
       Center(
