@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_othello_game/model/othello_game.dart';
+import 'package:flutter_othello_game/state/othello_game_state.dart';
 import 'package:provider/provider.dart';
 
 class Board extends StatelessWidget {
-  const Board({
-    Key key
-  }): super(key: key);
+  const Board({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +30,14 @@ class BoardColumn extends StatelessWidget {
   const BoardColumn({
     Key key,
     @required this.columnId,
-  }): super(key: key);
+  }) : super(key: key);
 
   final int columnId;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
-          child: BoardRow(columnId: columnId)
-      ),
+      child: Container(child: BoardRow(columnId: columnId)),
     );
   }
 }
@@ -51,7 +48,7 @@ class BoardRow extends StatelessWidget {
   const BoardRow({
     Key key,
     @required this.columnId,
-  }): super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +68,7 @@ class BoardCell extends StatelessWidget {
     Key key,
     @required this.columnId,
     @required this.rowId,
-  }): super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -86,24 +83,25 @@ class BoardCell extends StatelessWidget {
   }
 
   Widget getStone(BuildContext context) {
-    final int stoneIndex = context.select((OthelloGame game) => game.getState(getIndex()));
-    if(stoneIndex == OthelloGame.BLACK_STONE) {
+    final int stoneIndex = context.select((OthelloGameState state) => state.boardState[getIndex()]);
+
+    if (stoneIndex == OthelloGame.BLACK_STONE) {
       return BlackStone();
-    } else if(stoneIndex == OthelloGame.WHITE_STONE) {
+    } else if (stoneIndex == OthelloGame.WHITE_STONE) {
       return WhiteStone();
     } else {
       return InkWell(
-          child:Container(),
-          onTap: () {
-            context.read<OthelloGame>().putStone(getIndex());
-            print("Cell("+columnId.toString()+", "+rowId.toString()+") taped.");
-          }
+        child: Container(),
+        onTap: () {
+          context.read<OthelloGame>().putStone(getIndex());
+          print("Cell(" + columnId.toString() + ", " + rowId.toString() + ") taped.");
+        },
       );
     }
   }
 
   int getIndex() {
-    return columnId*8+rowId;
+    return columnId * 8 + rowId;
   }
 }
 
