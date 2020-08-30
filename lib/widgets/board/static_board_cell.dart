@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_othello_game/model/othello_game.dart';
+import 'package:flutter_othello_game/model/othello_board.dart';
 import 'package:flutter_othello_game/widgets/board/board_cell.dart';
 
 class StaticBoardCell extends BoardCell {
@@ -23,9 +23,9 @@ class StaticBoardCell extends BoardCell {
   }
 
   Widget getStone(BuildContext context) {
-    if (this.stoneIndex == OthelloGame.BLACK_STONE) {
+    if (this.stoneIndex == OthelloStone.Black.index) {
       return BlackStone();
-    } else if (this.stoneIndex == OthelloGame.WHITE_STONE) {
+    } else if (this.stoneIndex == OthelloStone.White.index) {
       return WhiteStone();
     } else {
       return Container();

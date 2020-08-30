@@ -1,3 +1,22 @@
+enum OthelloStone {
+  None,
+  Black,
+  White
+
+}
+
+extension OthelloStoneEx on OthelloStone {
+  OthelloStone turnOver() {
+    switch(this) {
+      case OthelloStone.Black:
+        return OthelloStone.White;
+      case OthelloStone.White:
+        return OthelloStone.Black;
+      default:
+        throw StateError('It can not turn over None.');
+    }
+  }
+}
 class OthelloBoard {
   final DIRECTIONS = {
     'top'        : {'shift' : (BigInt board) => board << 8, 'loop_guard' : 0x00FFFFFFFFFFFF00 },
@@ -10,14 +29,30 @@ class OthelloBoard {
     'down_right' : {'shift' : (BigInt board) => board >> 7, 'loop_guard' : 0x007e7e7e7e7e7e00 }
   };
 
+  static final BLACK_INIT_STONES = BigInt.from(0x0000000810000000).toUnsigned(64);
+  static final WHITE_INIT_STONES = BigInt.from(0x0000001008000000).toUnsigned(64);
+
   BigInt playerStones;
   BigInt opponentStones;
+  OthelloStone playerColor;
 
-  OthelloBoard({BigInt playerStones, BigInt opponentStones}) {
-    // 着手しようとしてる側の石
-    this.playerStones = playerStones;
-    // 着手しようとしてる側から見て相手の石
-    this.opponentStones = opponentStones;
+  // 初期配置のボードを返す。
+  static OthelloBoard initBoard() {
+    return new OthelloBoard(blackStones: BLACK_INIT_STONES, whiteStones: WHITE_INIT_STONES,
+        currentTurn: OthelloStone.Black);
+  }
+
+  OthelloBoard({BigInt blackStones, BigInt whiteStones, OthelloStone currentTurn}) {
+    this.playerColor = currentTurn;
+    if (currentTurn == OthelloStone.Black) {
+      // 着手しようとしてる側の石
+      this.playerStones = blackStones;
+      // 着手しようとしてる側から見て相手の石
+      this.opponentStones = whiteStones;
+    } else {
+      this.playerStones = whiteStones;
+      this.opponentStones = blackStones;
+    }
   }
 
   // 座標をbitに変換する
@@ -29,9 +64,9 @@ class OthelloBoard {
   }
 
   // 着手可否の判定
-  canPut(putPoint) {
+  bool canPut(putPoint) {
     var putStone = pointToBit(putPoint);
-    return putStone & canPutCells() > BigInt.zero;
+    return putStone & canPutCells > BigInt.zero;
   }
 
   // 着手して石返しする
@@ -44,29 +79,44 @@ class OthelloBoard {
 
   // パスか？
   isPass() {
-    return canPutCells() == BigInt.zero;
+    return canPutCells == BigInt.zero;
   }
 
   // 相手側のボード
   OthelloBoard opponentBoard() {
-    return new OthelloBoard(playerStones: this.opponentStones, opponentStones: this.playerStones);
+      return new OthelloBoard(
+          blackStones: blackStones, whiteStones: whiteStones, currentTurn: this.playerColor.turnOver());
   }
 
   String toStr(BigInt bit) {
-    return bit.toRadixString(2).padLeft(64, "0").replaceAllMapped(RegExp(r".{8}"), (match) => "${match.group(0)}\n");;
+    return bit.toRadixString(2).padLeft(64, "0").replaceAllMapped(RegExp(r".{8}"), (match) => "${match.group(0)}\n");
   }
 
   BigInt toBit(int num) {
     return BigInt.from(num).toUnsigned(64);
   }
 
+  // 盤状態をintの配列で返す。
+  List<int> toList() {
+    final BigInt basePoint = BigInt.from(0x8000000000000000).toUnsigned(64);
+    final res = List<int>.filled(64, 0);
+    for (int index = 0; index < 64; index++) {
+      BigInt point_bit = basePoint >> index;
+      if (point_bit & blackStones > BigInt.zero) {
+        res[index] = OthelloStone.Black.index;
+      } else if (point_bit & whiteStones > BigInt.zero) {
+        res[index] = OthelloStone.White.index;
+      }
+    }
+    return res;
+  }
   // 着手可能マス
-  BigInt canPutCells() {
+  BigInt get canPutCells {
     return DIRECTIONS.values.map((direction) {
       var adjacentOpponents = this.adjacentOpponents(direction, this.playerStones);
       // 最後が空きマスなら着手可能マスとする
       BigInt Function(BigInt) shift = direction['shift'];
-      return this.blankCells() & shift(adjacentOpponents);
+      return this.blankCells & shift(adjacentOpponents);
     }).reduce((current, next) => current | next);
   }
 
@@ -95,7 +145,17 @@ class OthelloBoard {
   }
 
   // 空きマス
-  BigInt blankCells() {
+  BigInt get blankCells {
     return ~(this.playerStones | this.opponentStones);
+  }
+
+  // 黒石のbit board
+  BigInt get blackStones {
+    return playerColor == OthelloStone.Black ? this.playerStones : this.opponentStones;
+  }
+
+  // 白石のbit board
+  BigInt get whiteStones {
+    return playerColor == OthelloStone.White ? this.playerStones : this.opponentStones;
   }
 }
