@@ -8,12 +8,14 @@ class ViewBoard extends StatelessWidget {
   double height = 320;
   double margin = 10;
   Color lineColor = Colors.black;
+  List<int> state;
 
   ViewBoard(
       {this.width = 320,
       this.height = 320,
       this.margin = 10.0,
       this.lineColor = Colors.black,
+      @required this.state,
       Key key})
       : super(key: key);
 
@@ -36,10 +38,10 @@ class ViewBoard extends StatelessWidget {
       cols[i] = BoardColumn(
           columnId: i,
           createRow: (id) => BoardRow(
-            columnId: id,
-            createCell: (columnId, rowId) =>
-                StaticBoardCell(stoneIndex: 1),
-          ));
+                columnId: id,
+                // TODO: extract util functions.
+                createCell: (columnId, rowId) => StaticBoardCell(stoneIndex: state[columnId * 8 + rowId]),
+              ));
     }
     return Column(children: cols);
   }
