@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_othello_game/main.dart';
 import 'package:flutter_othello_game/model/othello_board.dart';
+import 'package:flutter_othello_game/models.dart';
 
 class OthelloGame with ChangeNotifier {
   static const int BLACK_STONE = 1;
@@ -76,6 +78,28 @@ class OthelloGame with ChangeNotifier {
   void resetGame() {
     blackStones = BigInt.from(0x0000000810000000).toUnsigned(64);
     whiteStones = BigInt.from(0x0000001008000000).toUnsigned(64);
+    updateBoard();
+
+    isBlackTurn = true;
+    notifyListeners();
+  }
+
+  void registerQuiz(String title) async {
+    OthelloBoard board = getBoard();
+    if (isBlackTurn) {
+      await Quiz(title: title, black_stones: board.playerStones.toString(), white_stones: board.opponentStones.toString()).save();
+    } else {
+      await Quiz(title: title, black_stones: board.opponentStones.toString(), white_stones: board.playerStones.toString()).save();
+    }
+  }
+
+  // クイズデータをロードしたついでにOthelloGameの盤上も書き換える
+  // ゲームにするには正解の絵を別に持つかもしれない
+  void loadQuiz(int id) async {
+    Quiz quiz;
+    await Quiz().select().id.equals(id).toSingle().then((entity) => quiz = entity);
+    blackStones = BigInt.parse(quiz.black_stones).toUnsigned(64);
+    whiteStones = BigInt.parse(quiz.white_stones).toUnsigned(64);
     updateBoard();
 
     isBlackTurn = true;
